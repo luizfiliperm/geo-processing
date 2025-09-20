@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.db
+
+# Virtualenv
+venv/
+.env/
+.env.bak/
+
+# SQLite data folder
+data/local.db
+data/*.db
+
+# MongoDB data
+mongo_data/
+
+# Logs
+*.log
+
+# Streamlit
+.streamlit/
+
+# Jupyter (caso use)
+.ipynb_checkpoints/
+*.ipynb
+
+# Docker
+*.pid
+*.seed

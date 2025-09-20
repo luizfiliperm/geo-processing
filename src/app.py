@@ -1,21 +1,33 @@
 import streamlit as st
-from db_sqlite import get_connection
-from db_mongo import get_collection
+from ui.country_ui import render_country_page
+from db_sqlite import init_db
 
-st.title("Projeto Persistência Poliglota 🚀")
-st.subheader("Teste inicial de conexões")
+# Inicializa o banco SQLite (cria tabelas se não existirem)
+init_db()
 
-try:
-    conn_sqlite = get_connection()
-    cursor = conn_sqlite.cursor()
-    cursor.execute("SELECT 1")
-    st.success(f"✅ Conexão com SQLite funcionando!")
-except Exception as e:
-    st.error(f"❌ Erro na conexão com SQLite: {e}")
+# ------------------ Tela inicial ------------------
+if "page" not in st.session_state:
+    st.session_state.page = "home"
 
-try:
-    collection = get_collection()
-    collection.database.client.admin.command("ping")
-    st.success(f"✅ Conexão com MongoDB funcionando! Collection: {collection.name}")
-except Exception as e:
-    st.error(f"❌ Erro na conexão com MongoDB: {e}")
+def go_to(page_name):
+    st.session_state.page = page_name
+
+# Navbar / Home
+if st.session_state.page == "home":
+    st.title("Projeto Persistência Poliglota 🚀")
+    st.subheader("Escolha uma opção:")
+
+    if st.button("🌎 Gerenciar Países"):
+        go_to("countries")
+
+# Página de países
+elif st.session_state.page == "countries":
+    if st.button("⬅️ Voltar"):
+        go_to("home")
+    render_country_page()
+
+# Futuro: Página de cidades
+elif st.session_state.page == "cities":
+    if st.button("⬅️ Voltar"):
+        go_to("home")
+    st.info("Página de cidades em desenvolvimento")

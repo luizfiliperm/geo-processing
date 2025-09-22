@@ -1,8 +1,8 @@
 import streamlit as st
 from ui.country_ui import render_country_page
 from ui.city_ui import render_city_page
-from ui.form_local_ui import render_local_page
-from ui.local_consulta_ui import render_consulta_page
+from ui.form_place_ui import render_local_page
+from ui.place_query_ui import render_consulta_page
 from db_sqlite import init_db
 
 # Inicializa o banco SQLite (cria tabelas se não existirem)

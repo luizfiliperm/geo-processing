@@ -1,13 +1,11 @@
-# src/ui/city_ui.py
 import streamlit as st
 from services.city_service import CityService
 from services.country_service import CountryService
+from services.local_service import LocalService
 from domains.city import City
 from domains.state_enum import State
 import folium
 from streamlit_folium import st_folium
-from db_mongo import inserir_local, listar_locais_por_cidade
-from geoprocessamento import distancia_km, locais_proximos
 
 def render_city_page():
     st.title("Gestão de Cidades 🏙️")
@@ -43,7 +41,7 @@ def render_city_page():
     
     # Mostrar locais já cadastrados no MongoDB
     if "selected_city_name" in st.session_state:
-        locais = listar_locais_por_cidade(st.session_state.selected_city_name)
+        locais = LocalService.get_places_by_city(st.session_state.selected_city_name)
         for l in locais:
             folium.Marker(
                 [l["coordenadas"]["latitude"], l["coordenadas"]["longitude"]],

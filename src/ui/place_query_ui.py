@@ -1,9 +1,8 @@
-# src/ui/local_consulta_ui.py
 import streamlit as st
 import folium
 import pandas as pd
 from streamlit_folium import st_folium
-from geoprocessamento import locais_proximos
+from geoprocessing import get_nearby_places
 from db_sqlite import get_cities
 
 def render_consulta_page():
@@ -57,7 +56,7 @@ def render_consulta_page():
     raio_km = st.number_input("Raio em km", value=10, min_value=1)
 
     if st.button("🔍 Buscar Locais Próximos"):
-        locais = locais_proximos(st.session_state.lat, st.session_state.lon, raio_km)
+        locais = get_nearby_places(st.session_state.lat, st.session_state.lon, raio_km)
 
         if cidade_filtro != "Todas":
             locais = [l for l in locais if l["cidade"] == cidade_filtro]

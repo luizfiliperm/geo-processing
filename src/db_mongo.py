@@ -33,7 +33,7 @@ def atualizar_local(local_id, dados):
     collection = get_collection()
     return collection.update_one({"_id": local_id}, {"$set": dados})
 
-def listar_locais():
+def places():
     """Retorna todos os locais"""
     collection = get_collection()
     return list(collection.find())

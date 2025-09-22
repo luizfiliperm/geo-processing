@@ -1,7 +1,7 @@
 import streamlit as st
 import folium
 from streamlit_folium import st_folium
-from db_mongo import get_collection, listar_locais
+from db_mongo import get_collection, places
 from db_sqlite import get_cities
 
 def render_local_page():
@@ -73,7 +73,7 @@ def render_local_page():
     st.subheader("Locais Cadastrados")
 
     # ------------------ Lista de locais ------------------
-    locais = listar_locais()
+    locais = places()
     for l in locais:
         col1, col2, col3 = st.columns([4, 1, 1])
         col1.write(f"{l['nome_local']} — {l['cidade']} (Lat: {l['coordenadas']['latitude']}, Lon: {l['coordenadas']['longitude']})")

@@ -109,7 +109,7 @@ def render_city_page():
             st.session_state.edit_city_id = c.id
             st.session_state.lat = c.latitude if c.latitude else st.session_state.lat
             st.session_state.lon = c.longitude if c.longitude else st.session_state.lon
-            st.session_state.selected_city_name = c.name
+           
 
         if col3.button("🗑️", key=f"delete_{c.id}"):
             st.session_state.confirm_delete_city_id = c.id

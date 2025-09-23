@@ -8,9 +8,6 @@ def distance_km(coord1, coord2):
     """
     return geodesic(coord1, coord2).km
 
-from db_mongo import get_collection
-import math
-
 def get_nearby_places(latitude, longitude, radius_km=10):
     collection = get_collection()
     

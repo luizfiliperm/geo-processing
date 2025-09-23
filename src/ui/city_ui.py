@@ -1,7 +1,7 @@
 import streamlit as st
 from services.city_service import CityService
 from services.country_service import CountryService
-from services.local_service import LocalService
+from services.Place_service import PlaceService
 from domains.city import City
 from domains.state_enum import State
 import folium
@@ -41,7 +41,7 @@ def render_city_page():
     
     # Mostrar locais já cadastrados no MongoDB
     if "selected_city_name" in st.session_state:
-        locais = LocalService.get_places_by_city(st.session_state.selected_city_name)
+        locais = PlaceService.get_places_by_city(st.session_state.selected_city_name)
         for l in locais:
             folium.Marker(
                 [l["coordenadas"]["latitude"], l["coordenadas"]["longitude"]],

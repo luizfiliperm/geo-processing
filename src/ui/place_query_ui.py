@@ -5,7 +5,7 @@ from streamlit_folium import st_folium
 from geoprocessing import get_nearby_places
 from db_sqlite import get_cities
 
-def render_consulta_page():
+def render_query_page():
     st.title("🔎 Consulta de Locais Próximos")
 
     # Controle de estado
@@ -13,12 +13,12 @@ def render_consulta_page():
         st.session_state.lat = -7.11532
     if "lon" not in st.session_state:
         st.session_state.lon = -34.861
-    if "locais_encontrados" not in st.session_state:
-        st.session_state.locais_encontrados = []
+    if "found_places" not in st.session_state:
+        st.session_state.found_places = []
 
     # Carregar cidades do SQLite
-    cidades = get_cities()
-    city_options = ["Todas"] + [c["name"] for c in cidades]
+    cities = get_cities()
+    city_options = ["Todas"] + [c["name"] for c in cities]
 
     # ------------------ Mapa interativo ------------------
     st.markdown("**Clique no mapa para escolher a referência de proximidade**")
@@ -35,11 +35,11 @@ def render_consulta_page():
     ).add_to(m)
 
     # Se já tiver locais encontrados, desenhar no mapa
-    for l in st.session_state.locais_encontrados:
+    for place in st.session_state.found_places:
         folium.Marker(
-            [l["coordenadas"]["latitude"], l["coordenadas"]["longitude"]],
-            popup=l["nome_local"],
-            tooltip=l["nome_local"],
+            [place["coordenadas"]["latitude"], place["coordenadas"]["longitude"]],
+            popup=place["nome_local"],
+            tooltip=place["nome_local"],
             icon=folium.Icon(color="blue", icon="info-sign")
         ).add_to(m)
 
@@ -52,30 +52,30 @@ def render_consulta_page():
 
     # ------------------ Filtros ------------------
     st.subheader("Filtros de busca")
-    cidade_filtro = st.selectbox("Filtrar por cidade (opcional)", city_options)
-    raio_km = st.number_input("Raio em km", value=10, min_value=1)
+    city_filter = st.selectbox("Filtrar por cidade (opcional)", city_options)
+    radius_km = st.number_input("Raio em km", value=10, min_value=1)
 
     if st.button("🔍 Buscar Locais Próximos"):
-        locais = get_nearby_places(st.session_state.lat, st.session_state.lon, raio_km)
+        places = get_nearby_places(st.session_state.lat, st.session_state.lon, radius_km)
 
-        if cidade_filtro != "Todas":
-            locais = [l for l in locais if l["cidade"] == cidade_filtro]
+        if city_filter != "Todas":
+            places = [p for p in places if p["cidade"] == city_filter]
 
-        st.session_state.locais_encontrados = locais  # salvar resultado na sessão
+        st.session_state.found_places = places  # salvar resultado na sessão
 
     # ------------------ Exibir resultados ------------------
-    if st.session_state.locais_encontrados:
-        locais = st.session_state.locais_encontrados
-        st.success(f"{len(locais)} locais encontrados dentro de {raio_km} km")
+    if st.session_state.found_places:
+        places = st.session_state.found_places
+        st.success(f"{len(places)} locais encontrados dentro de {radius_km} km")
 
         # Tabela
         df = pd.DataFrame([{
-            "Nome": l["nome_local"],
-            "Cidade": l["cidade"],
-            "Latitude": l["coordenadas"]["latitude"],
-            "Longitude": l["coordenadas"]["longitude"],
-            "Descrição": l.get("descricao", "")
-        } for l in locais])
+            "Nome": p["nome_local"],
+            "Cidade": p["cidade"],
+            "Latitude": p["coordenadas"]["latitude"],
+            "Longitude": p["coordenadas"]["longitude"],
+            "Descrição": p.get("descricao", "")
+        } for p in places])
         # Garantir que _id não apareça
         if "_id" in df.columns:
             df = df.drop(columns=["_id"])

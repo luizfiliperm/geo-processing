@@ -7,7 +7,7 @@ from db_sqlite import get_cities
 from geoprocessing import get_nearby_places
 
 
-def render_local_page():
+def render_place_page():
     st.header("📍 Gerenciar Locais")
 
     # ------------------ Inicialização do session_state ------------------

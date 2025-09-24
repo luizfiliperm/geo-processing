@@ -1,7 +1,7 @@
 import streamlit as st
 from ui.country_ui import render_country_page
 from ui.city_ui import render_city_page
-from ui.form_place_ui import render_local_page
+from ui.form_place_ui import render_place_page
 from ui.place_query_ui import render_query_page
 from db_sqlite import init_db
 
@@ -45,7 +45,7 @@ elif st.session_state.page == "cities":
 elif st.session_state.page == "locals":
     if st.button("⬅️ Voltar"):
         go_to("home")
-    render_local_page()
+    render_place_page()
 
 # ------------------ Página de Consulta de Locais ------------------
 elif st.session_state.page == "consulta_locais":

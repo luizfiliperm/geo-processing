@@ -1,9 +1,10 @@
 import streamlit as st
 import folium
 import pandas as pd
+from services.city_service import CityService
 from streamlit_folium import st_folium
 from geoprocessing import get_nearby_places
-from db_sqlite import get_cities
+
 
 def render_query_page():
     st.title("🔎 Consulta de Locais Próximos")
@@ -17,8 +18,8 @@ def render_query_page():
         st.session_state.found_places = []
 
     # Carregar cidades do SQLite
-    cities = get_cities()
-    city_options = ["Todas"] + [c["name"] for c in cities]
+    city_objects = CityService().get_all()
+    city_options = ["Todas"] + [c.name for c in city_objects]
 
     # ------------------ Mapa interativo ------------------
     st.markdown("**Clique no mapa para escolher a referência de proximidade**")
@@ -36,12 +37,18 @@ def render_query_page():
 
     # Se já tiver locais encontrados, desenhar no mapa
     for place in st.session_state.found_places:
+        if "coordenadas" not in place:
+            st.warning(f"⚠️ Local sem coordenadas: {place.get('nome_local', 'Sem nome')} - {place}")
+            continue
+        
         folium.Marker(
             [place["coordenadas"]["latitude"], place["coordenadas"]["longitude"]],
-            popup=place["nome_local"],
-            tooltip=place["nome_local"],
+            popup=place.get("nome_local", "Sem nome"),
+            tooltip=place.get("nome_local", "Sem nome"),
             icon=folium.Icon(color="blue", icon="info-sign")
         ).add_to(m)
+
+
 
     map_data = st_folium(m, width=700, height=400)
 
@@ -70,12 +77,13 @@ def render_query_page():
 
         # Tabela
         df = pd.DataFrame([{
-            "Nome": p["nome_local"],
-            "Cidade": p["cidade"],
-            "Latitude": p["coordenadas"]["latitude"],
-            "Longitude": p["coordenadas"]["longitude"],
-            "Descrição": p.get("descricao", "")
-        } for p in places])
+        "Nome": p.get("nome_local", "Sem nome"),
+        "Cidade": p.get("cidade", "Desconhecida"),
+        "Latitude": p.get("coordenadas", {}).get("latitude", None),
+        "Longitude": p.get("coordenadas", {}).get("longitude", None),
+        "Descrição": p.get("descricao", "")
+    } for p in places])
+
         # Garantir que _id não apareça
         if "_id" in df.columns:
             df = df.drop(columns=["_id"])

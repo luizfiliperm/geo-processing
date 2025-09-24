@@ -1,11 +1,12 @@
 import streamlit as st
 import folium
-from services.Place_service import PlaceService
+from services.city_service import CityService
+from services.place_service import PlaceService
 from streamlit_folium import st_folium
 from db_mongo import get_collection
-from db_sqlite import get_cities
 
-def render_local_page():
+
+def render_place_page():
     st.header("📍 Gerenciar Locais")
 
     # ------------------ Inicialização do session_state ------------------
@@ -46,10 +47,10 @@ def render_local_page():
         "Nome do Local",
         value="" if st.session_state.edit_place_id is None else st.session_state.edit_name
     )
-    cidades = [c['name'] for c in get_cities()]
+    cities = [c.name for c in CityService().get_all()]
     selected_city = st.selectbox(
         "Cidade",
-        cidades,
+        cities,
         index=0 if st.session_state.edit_place_id is None else st.session_state.edit_city_index
     )
     latitude = st.number_input("Latitude", value=st.session_state.lat, format="%.6f")
@@ -58,30 +59,28 @@ def render_local_page():
         "Descrição",
         value="" if st.session_state.edit_place_id is None else st.session_state.edit_description
     )
-
-    if st.button("Salvar Local"):
+    button_label = "Atualizar Local" if st.session_state.edit_place_id else "Salvar Local"
+    if st.button(button_label):
         if name and selected_city and latitude != 0.0 and longitude != 0.0:
             collection = get_collection()
             if st.session_state.edit_place_id:
-                
                 collection.update_one(
                     {"_id": st.session_state.edit_place_id},
                     {"$set": {
-                        "place_name": name,
-                        "city": selected_city,
-                        "coordinates": {"latitude": latitude, "longitude": longitude},
-                        "description": description
+                        "nome_local": name,
+                        "cidade": selected_city,
+                        "coordenadas": {"latitude": latitude, "longitude": longitude},
+                        "descricao": description
                     }}
                 )
                 st.success(f"Local '{name}' atualizado com sucesso!")
                 st.session_state.edit_place_id = None
             else:
-                
                 collection.insert_one({
-                    "place_name": name,
-                    "city": selected_city,
-                    "coordinates": {"latitude": latitude, "longitude": longitude},
-                    "description": description
+                    "nome_local": name,
+                    "cidade": selected_city,
+                    "coordenadas": {"latitude": latitude, "longitude": longitude},
+                    "descricao": description
                 })
                 st.success(f"Local '{name}' adicionado com sucesso!")
         else:
@@ -103,7 +102,7 @@ def render_local_page():
         if col2.button("✏️", key=f"edit_{p['_id']}"):
             st.session_state.edit_place_id = p["_id"]
             st.session_state.edit_name = nome
-            st.session_state.edit_city_index = cidades.index(cidade) if cidade in cidades else 0
+            st.session_state.edit_city_index = cities.index(cidade) if cidade in cities else 0
             st.session_state.edit_description = p.get("description", "")
             st.session_state.lat = coords['latitude']
             st.session_state.lon = coords['longitude']

@@ -1,7 +1,7 @@
-# src/ui/city_ui.py
 import streamlit as st
 from services.city_service import CityService
 from services.country_service import CountryService
+from services.place_service import PlaceService
 from domains.city import City
 from domains.state_enum import State
 import folium
@@ -18,7 +18,7 @@ def render_city_page():
     if "refresh_cities" not in st.session_state:
         st.session_state.refresh_cities = True
     if "lat" not in st.session_state:
-        st.session_state.lat = -7.11532  # João Pessoa como default
+        st.session_state.lat = -7.11532
     if "lon" not in st.session_state:
         st.session_state.lon = -34.861
 
@@ -27,12 +27,8 @@ def render_city_page():
     state_options = [s.name for s in State]
 
     # ------------------ Mapa interativo ------------------
-    st.markdown("**Clique no mapa para selecionar a localização da cidade**")
-
-    # Centraliza no ponto selecionado
+    st.markdown("**Clique no mapa para selecionar a localização da cidade ou local**")
     m = folium.Map(location=[st.session_state.lat, st.session_state.lon], zoom_start=12)
-
-    # Marcador verde indicando seleção atual
     folium.CircleMarker(
         location=[st.session_state.lat, st.session_state.lon],
         radius=8,
@@ -40,20 +36,28 @@ def render_city_page():
         fill=True,
         fill_color='green',
         fill_opacity=0.7,
-        tooltip="Cidade selecionada"
+        tooltip="Cidade/Local selecionado"
     ).add_to(m)
+    
+    # Mostrar locais já cadastrados no MongoDB
+    if "selected_city_name" in st.session_state:
+        places = PlaceService().get_places_by_city(st.session_state.selected_city_name)
 
-    # Renderiza mapa
+        for l in places:
+            folium.Marker(
+                [l["coordenadas"]["latitude"], l["coordenadas"]["longitude"]],
+                popup=l["nome_local"],
+                icon=folium.Icon(color="blue", icon="info-sign")
+            ).add_to(m)
+
     map_data = st_folium(m, width=700, height=400)
 
-    # Captura clique do usuário
     if map_data and map_data.get("last_clicked"):
         st.session_state.lat = map_data["last_clicked"]["lat"]
         st.session_state.lon = map_data["last_clicked"]["lng"]
         st.info(f"Latitude: {st.session_state.lat:.6f}, Longitude: {st.session_state.lon:.6f}")
 
-
-    # ------------------ Formulário de criação/edição ------------------
+    # ------------------ Formulário de criação/edição de cidade ------------------
     with st.form("city_form"):
         if st.session_state.edit_city_id:
             city_to_edit = city_service.get_by_id(st.session_state.edit_city_id)
@@ -86,6 +90,7 @@ def render_city_page():
                 st.success(f"Cidade salva com sucesso!")
                 st.session_state.edit_city_id = None
                 st.session_state.refresh_cities = True
+                st.session_state.selected_city_name = name
             except Exception as e:
                 st.error(f"Erro ao salvar cidade: {e}")
 
@@ -99,17 +104,15 @@ def render_city_page():
         country_name = next((k for k, v in country_options.items() if v == c.country_id), "Desconhecido")
         col1.write(f"{c.name}, {c.state.value if c.state else '—'}, {country_name}")
 
-        # Botão editar
         if col2.button("✏️", key=f"edit_{c.id}"):
             st.session_state.edit_city_id = c.id
             st.session_state.lat = c.latitude if c.latitude else st.session_state.lat
             st.session_state.lon = c.longitude if c.longitude else st.session_state.lon
+           
 
-        # Botão apagar com confirmação
         if col3.button("🗑️", key=f"delete_{c.id}"):
             st.session_state.confirm_delete_city_id = c.id
 
-        # Confirmação Sim/Não
         if "confirm_delete_city_id" in st.session_state and st.session_state.confirm_delete_city_id == c.id:
             st.warning(f"⚠️ Você realmente quer deletar a cidade {c.name}?")
             col_confirm1, col_confirm2 = st.columns([1, 1])

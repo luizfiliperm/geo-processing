@@ -1,6 +1,8 @@
 import streamlit as st
 from ui.country_ui import render_country_page
 from ui.city_ui import render_city_page
+from ui.form_place_ui import render_place_page
+from ui.place_query_ui import render_query_page
 from db_sqlite import init_db
 
 # Inicializa o banco SQLite (cria tabelas se não existirem)
@@ -22,6 +24,10 @@ if st.session_state.page == "home":
         go_to("countries")
     if st.button("🏙️ Gerenciar Cidades"):
         go_to("cities")
+    if st.button("📍 Gerenciar Locais"):
+        go_to("locals")
+    if st.button("🔎 Consultar Locais Próximos"):
+        go_to("consulta_locais")
 
 # ------------------ Página de Países ------------------
 elif st.session_state.page == "countries":
@@ -34,3 +40,15 @@ elif st.session_state.page == "cities":
     if st.button("⬅️ Voltar"):
         go_to("home")
     render_city_page()
+
+# ------------------ Página de Locais ------------------
+elif st.session_state.page == "locals":
+    if st.button("⬅️ Voltar"):
+        go_to("home")
+    render_place_page()
+
+# ------------------ Página de Consulta de Locais ------------------
+elif st.session_state.page == "consulta_locais":
+    if st.button("⬅️ Voltar"):
+        go_to("home")
+    render_query_page()

@@ -1,4 +1,3 @@
-# src/ui/country_ui.py
 import streamlit as st
 from services.country_service import CountryService
 from domains.country import Country
@@ -36,7 +35,7 @@ def render_country_page():
                 saved = service.save(country)
                 st.success(f"País salvo com sucesso! {saved}")
                 st.session_state.edit_country_id = None
-                st.session_state.refresh = True  # força atualização da lista
+                st.session_state.refresh = True  
             except Exception as e:
                 st.error(f"Erro: {e}")
 

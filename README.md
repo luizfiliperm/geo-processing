@@ -23,6 +23,37 @@ Desenvolver uma aplicação para armazenar e consultar dados em diferentes conte
 - Visualização de locais no mapa dentro do Streamlit.
 - Interface interativa para inserir e editar dados, selecionar cidades e consultar locais próximos.
 
+## Estrutura do projeto
+```
+.
+├── docker-compose.yml         # Configuração dos containers (MongoDB + Streamlit)
+├── Dockerfile                 # Build da aplicação Python
+├── migrations/                # Scripts SQL para criação das tabelas no SQLite
+│   ├── 01-create_country.sql
+│   └── 02-create_city.sql
+├── requirements.txt           # Dependências do projeto
+├── src/                       # Código-fonte principal
+│   ├── app.py                 # Ponto de entrada da aplicação Streamlit
+│   ├── db_mongo.py            # Conexão e operações no MongoDB
+│   ├── db_sqlite.py           # Conexão e operações no SQLite
+│   ├── domains/               # Definição das entidades do sistema
+│   │   ├── city.py
+│   │   ├── country.py
+│   │   └── state_enum.py
+│   ├── geoprocessing.py       # Funções para cálculo de distâncias e operações geográficas
+│   ├── services/              # Camada de regras de negócio
+│   │   ├── city_service.py
+│   │   ├── country_service.py
+│   │   └── place_service.py
+│   └── ui/                    # Interface Streamlit (telas e formulários)
+│       ├── city_ui.py
+│       ├── country_ui.py
+│       ├── form_place_ui.py
+│       ├── place_query_ui.py
+│       └── render_place_page.py
+
+```
+
 ## Executando via Docker
 
 1. Certifique-se de ter **Docker** e **Docker Compose** instalados.  
@@ -32,8 +63,9 @@ git clone https://github.com/luizfiliperm/geo-processing.git
 cd geo-processing
 ```
 3.Suba os containers:
-```
-docker-compose up --build
+```bash
+docker-compose build;
+docker-compose uo;
 ```
 4. Acesse a aplicação Streamlit pelo navegador:
  ```
@@ -43,6 +75,10 @@ docker-compose up --build
 - Inserir uma novo pais, cidade ou local.
 - Consultar locais próximos a uma coordenada fornecida.
 - Visualizar locais cadastrados no mapa interativo.
+
+## Demonstração
+
+<video src="./demonstracao.mp4" controls width="600"></video>
 
 ## Professor
 Ricardo Roberto de Lima

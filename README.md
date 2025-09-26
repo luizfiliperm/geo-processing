@@ -65,7 +65,7 @@ cd geo-processing
 3.Suba os containers:
 ```bash
 docker-compose build;
-docker-compose uo;
+docker-compose up;
 ```
 4. Acesse a aplicação Streamlit pelo navegador:
  ```
